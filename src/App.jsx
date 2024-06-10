@@ -4,7 +4,7 @@ import { Chess } from "chess.js";
 import { io } from "socket.io-client";
 import "./index.css";
 
-const socket = io("https://chess-game-server-1.onrender.com");
+const socket = io("http://localhost:7777");
 
 const App = () => {
   const [game] = useState(new Chess());
@@ -61,7 +61,23 @@ const App = () => {
     setStatus(status);
   };
 
-  const onDrop = ({ sourceSquare, targetSquare }) => {
+  const onDrop = ({ sourceSquare, targetSquare, piece }) => {
+    // Check if it's the player's turn and they are moving their own pieces
+    if (
+      (game.turn() === "w" && currentPlayer !== "w") ||
+      (game.turn() === "b" && currentPlayer !== "b")
+    ) {
+      return "snapback";
+    }
+
+    // Check if the player is trying to move their own piece
+    if (
+      (currentPlayer === "w" && piece.startsWith("b")) ||
+      (currentPlayer === "b" && piece.startsWith("w"))
+    ) {
+      return "snapback";
+    }
+
     const move = game.move({
       from: sourceSquare,
       to: targetSquare,

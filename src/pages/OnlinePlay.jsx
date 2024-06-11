@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import ChessBoard from "../components/ChessBoard";
 import StatusBar from "../components/StatusBar";
 import ChatBox from "../components/ChatBox";
@@ -7,6 +8,7 @@ import { getGameInstance, makeMove, getStatus } from "../services/game";
 import "../index.css";
 
 const OnlinePlay = () => {
+  const navigate = useNavigate(); // Get the navigate function from react-router-dom
   const game = getGameInstance();
   const [fen, setFen] = useState("start");
   const [status, setStatus] = useState("");
@@ -21,6 +23,7 @@ const OnlinePlay = () => {
     });
 
     socket.on("waitingForOpponent", ({ message }) => {
+      console.log("waiting", message);
       setStatus(message);
     });
 
@@ -87,6 +90,15 @@ const OnlinePlay = () => {
       setMessage("");
     }
   };
+
+  // Reload the component when the user navigates to the same route
+  const reloadComponent = () => {
+    navigate("/online-play", { replace: true });
+  };
+
+  useEffect(() => {
+    reloadComponent();
+  }, []);
 
   return (
     <div className="w-full flex flex-col items-center justify-center">

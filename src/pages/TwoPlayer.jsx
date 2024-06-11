@@ -50,7 +50,7 @@ const TwoPlayer = () => {
 
   return (
     <div>
-      <ChessBoard fen={fen} onDrop={onDrop} orientation="white" />
+      <ChessBoard position={fen} onDrop={onDrop} orientation="white" />
       <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
     </div>
   );

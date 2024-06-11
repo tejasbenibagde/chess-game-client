@@ -7,6 +7,7 @@ const PlayComputer = () => {
   const [game] = useState(new Chess());
   const [fen, setFen] = useState("start");
   const [status, setStatus] = useState("");
+  const [playerRole, setPlayerRole] = useState(""); // State to store player role
 
   const updateStatus = () => {
     let status = "";
@@ -27,6 +28,13 @@ const PlayComputer = () => {
     setStatus(status);
   };
 
+  const startGame = (selectedRole) => {
+    setPlayerRole(selectedRole);
+    if (selectedRole === "black") {
+      makeComputerMove();
+    }
+  };
+
   const onDrop = ({ sourceSquare, targetSquare }) => {
     try {
       const move = game.move({
@@ -41,28 +49,44 @@ const PlayComputer = () => {
 
       setFen(game.fen());
       updateStatus();
-
-      // Computer move logic (random move for simplicity)
-      setTimeout(() => {
-        const possibleMoves = game.moves();
-        if (possibleMoves.length === 0) return;
-
-        const randomMove =
-          possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
-        game.move(randomMove);
-        setFen(game.fen());
-        updateStatus();
-      }, 500);
+      makeComputerMove();
     } catch (error) {
       console.error(error.message);
       return "snapback";
     }
   };
 
+  const makeComputerMove = () => {
+    setTimeout(() => {
+      const possibleMoves = game.moves();
+      if (possibleMoves.length === 0) return;
+
+      const randomMove =
+        possibleMoves[Math.floor(Math.random() * possibleMoves.length)];
+      game.move(randomMove);
+      setFen(game.fen());
+      updateStatus();
+    }, 500);
+  };
+
   return (
     <div>
-      <ChessBoard fen={fen} onDrop={onDrop} orientation="white" />
-      <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
+      {playerRole ? (
+        <>
+          <ChessBoard
+            position={fen}
+            onDrop={onDrop}
+            orientation={playerRole === "black" ? "black" : "white"}
+          />
+          <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
+        </>
+      ) : (
+        <div className="role-select">
+          <h2>Select Your Role</h2>
+          <button onClick={() => startGame("white")}>Play as White</button>
+          <button onClick={() => startGame("black")}>Play as Black</button>
+        </div>
+      )}
     </div>
   );
 };

@@ -42,6 +42,7 @@ const TwoPlayer = () => {
       setFen(game.fen());
       updateStatus();
     } catch (error) {
+      //error
       console.error(error.message);
       return "snapback";
     }

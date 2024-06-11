@@ -14,7 +14,6 @@ const AppRouter = () => {
         <Route path="/online-play" element={<OnlinePlay />} />
         <Route path="/play-computer" element={<PlayComputer />} />
         <Route path="/two-player" element={<TwoPlayer />} />
-        {/* Add more routes as needed */}
       </Routes>
     </Router>
   );

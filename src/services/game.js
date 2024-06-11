@@ -1,7 +1,6 @@
-// services/game.js
 import { Chess } from "chess.js";
 
-const game = new Chess();
+let game = new Chess();
 
 export const getGameInstance = () => game;
 
@@ -26,4 +25,8 @@ export const getStatus = () => {
   }
 
   return status;
+};
+
+export const resetGameInstance = () => {
+  game = new Chess();
 };

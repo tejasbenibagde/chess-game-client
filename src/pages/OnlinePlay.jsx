@@ -1,14 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
 import ChessBoard from "../components/ChessBoard";
 import StatusBar from "../components/StatusBar";
 import ChatBox from "../components/ChatBox";
-import socket from "../services/socket";
+import { connectSocket, disconnectSocket } from "../services/socket";
 import { getGameInstance, makeMove, getStatus } from "../services/game";
 import "../index.css";
 
 const OnlinePlay = () => {
-  const navigate = useNavigate(); // Get the navigate function from react-router-dom
   const game = getGameInstance();
   const [fen, setFen] = useState("start");
   const [status, setStatus] = useState("");
@@ -17,6 +15,8 @@ const OnlinePlay = () => {
   const [message, setMessage] = useState("");
 
   useEffect(() => {
+    const socket = connectSocket();
+
     socket.on("userrole", ({ role }) => {
       setCurrentPlayer(role);
       setStatus(getStatus());
@@ -38,10 +38,7 @@ const OnlinePlay = () => {
     });
 
     return () => {
-      socket.off("userrole");
-      socket.off("waitingForOpponent");
-      socket.off("move");
-      socket.off("chatMessage");
+      disconnectSocket();
     };
   }, [game]);
 
@@ -72,6 +69,7 @@ const OnlinePlay = () => {
       }
 
       setFen(game.fen());
+      const socket = connectSocket();
       socket.emit("move", move);
       setStatus(getStatus());
     } catch (error) {
@@ -86,19 +84,11 @@ const OnlinePlay = () => {
       const formattedMessage = `${message} - ${
         currentPlayer === "w" ? "White" : "Black"
       }`;
+      const socket = connectSocket();
       socket.emit("chatMessage", formattedMessage);
       setMessage("");
     }
   };
-
-  // Reload the component when the user navigates to the same route
-  const reloadComponent = () => {
-    navigate("/online-play", { replace: true });
-  };
-
-  useEffect(() => {
-    reloadComponent();
-  }, []);
 
   return (
     <div className="w-full flex flex-col items-center justify-center">

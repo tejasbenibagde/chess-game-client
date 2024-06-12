@@ -6,10 +6,10 @@ const Navbar = () => {
       path: "/",
       name: "Home",
     },
-    {
-      path: "/profile/:id",
-      name: "Profile",
-    },
+    // {
+    //   path: "/profile/:id",
+    //   name: "Profile",
+    // },
   ];
 
   return (

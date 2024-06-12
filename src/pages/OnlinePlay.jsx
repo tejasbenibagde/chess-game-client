@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import ChessBoard from "../components/ChessBoard";
 import StatusBar from "../components/StatusBar";
 import ChatBox from "../components/ChatBox";
+import PromotionModal from "../components/PromotionModal";
 import { connectSocket, disconnectSocket } from "../services/socket";
 import { getGameInstance, makeMove, getStatus } from "../services/game";
 import "../index.css";
@@ -13,6 +14,8 @@ const OnlinePlay = () => {
   const [currentPlayer, setCurrentPlayer] = useState("");
   const [messages, setMessages] = useState([]);
   const [message, setMessage] = useState("");
+  const [promotionSquare, setPromotionSquare] = useState(null);
+  const [promotionMove, setPromotionMove] = useState(null);
 
   useEffect(() => {
     const socket = connectSocket();
@@ -42,6 +45,28 @@ const OnlinePlay = () => {
     };
   }, [game]);
 
+  const handlePromotionSelect = (promotion) => {
+    const move = {
+      ...promotionMove,
+      promotion,
+    };
+
+    makeMove(move);
+    setFen(game.fen());
+    setStatus(getStatus());
+
+    const socket = connectSocket();
+    socket.emit("move", move);
+
+    setPromotionSquare(null);
+    setPromotionMove(null);
+  };
+
+  const handlePromotionClose = () => {
+    setPromotionSquare(null);
+    setPromotionMove(null);
+  };
+
   const onDrop = ({ sourceSquare, targetSquare, piece }) => {
     try {
       if (
@@ -58,10 +83,22 @@ const OnlinePlay = () => {
         throw new Error("You can only move your own pieces");
       }
 
+      // Check if the move is a pawn promotion
+      if (
+        (piece === "wP" && targetSquare[1] === "8") ||
+        (piece === "bP" && targetSquare[1] === "1")
+      ) {
+        setPromotionSquare(targetSquare);
+        setPromotionMove({
+          from: sourceSquare,
+          to: targetSquare,
+        });
+        return;
+      }
+
       const move = game.move({
         from: sourceSquare,
         to: targetSquare,
-        promotion: "q",
       });
 
       if (move === null) {
@@ -91,23 +128,32 @@ const OnlinePlay = () => {
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center">
-      <div>
-        <h1 className="bg-green-500 w-[10vw] my-2 rounded-sm flex items-center justify-center">
-          {currentPlayer === "w" ? "White" : "Black"}
-        </h1>
-        <ChessBoard
-          width={450}
-          position={fen}
-          onDrop={onDrop}
-          orientation={currentPlayer === "w" ? "white" : "black"}
-        />
-        <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
-        <ChatBox
-          messages={messages}
-          message={message}
-          setMessage={setMessage}
-          sendMessage={sendMessage}
+    <div className="relative w-full flex flex-col items-center justify-center">
+      <div className="relative items-center justify-between">
+        <div className="relative">
+          <h1 className="bg-green-500 w-[10vw] my-2 rounded-sm flex items-center justify-center">
+            {currentPlayer === "w" ? "White" : "Black"}
+          </h1>
+          <ChessBoard
+            width={450}
+            position={fen}
+            onDrop={onDrop}
+            orientation={currentPlayer === "w" ? "white" : "black"}
+          />
+          <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
+          <ChatBox
+            messages={messages}
+            message={message}
+            setMessage={setMessage}
+            sendMessage={sendMessage}
+            currentPlayer={currentPlayer}
+          />
+        </div>
+
+        <PromotionModal
+          show={promotionSquare !== null}
+          onSelect={handlePromotionSelect}
+          onClose={handlePromotionClose}
         />
       </div>
     </div>

@@ -7,7 +7,7 @@ const ChatBox = ({ messages, message, setMessage, sendMessage }) => {
   };
 
   return (
-    <div id="chat" className="bg-zinc-600 w-full rounded-sm p-2">
+    <div id="chat" className="bg-zinc-600 w-[450px] rounded-sm p-2">
       <div id="chatMessages">
         {messages.map((msg, index) => (
           <div key={index}>{msg}</div>

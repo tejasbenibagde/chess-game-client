@@ -7,6 +7,7 @@ const TwoPlayer = () => {
   const [game] = useState(new Chess());
   const [fen, setFen] = useState("start");
   const [status, setStatus] = useState("");
+  const [orientation, setOrientation] = useState("white");
 
   const updateStatus = () => {
     let status = "";
@@ -49,8 +50,25 @@ const TwoPlayer = () => {
   };
 
   return (
-    <div>
-      <ChessBoard position={fen} onDrop={onDrop} orientation="white" />
+    <div className="w-full flex flex-col items-center justify-center">
+      <div className="w-[450px] mb-2">
+        <button
+          onClick={() => {
+            orientation === "white"
+              ? setOrientation("black")
+              : setOrientation("white");
+          }}
+          className="px-2 py-[1px] bg-green-500 rounded-sm"
+        >
+          Flip Board
+        </button>
+      </div>
+      <ChessBoard
+        position={fen}
+        onDrop={onDrop}
+        width={450}
+        orientation={orientation}
+      />
       <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
     </div>
   );

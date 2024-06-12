@@ -4,14 +4,13 @@
 @tailwind components;
 @tailwind utilities;
 
-
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body{
+body {
   background: rgb(59, 62, 64);
   color: aliceblue;
 }

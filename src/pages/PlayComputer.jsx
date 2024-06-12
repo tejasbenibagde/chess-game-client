@@ -70,21 +70,22 @@ const PlayComputer = () => {
   };
 
   return (
-    <div>
+    <div className="w-full min-h-[90vh] flex items-center justify-center flex-col">
       {playerRole ? (
         <>
           <ChessBoard
             position={fen}
+            width={450}
             onDrop={onDrop}
             orientation={playerRole === "black" ? "black" : "white"}
           />
           <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
         </>
       ) : (
-        <div className="role-select">
-          <h2>Select Your Role</h2>
-          <button onClick={() => startGame("white")}>Play as White</button>
-          <button onClick={() => startGame("black")}>Play as Black</button>
+        <div className="bg-green-500 h-[15vw] w-[20vw] rounded-xl flex items-center justify-center flex-col gap-2">
+          <h2 className="text-[1.2em]">Select Your Role</h2>
+          <button className="text-[1em] bg-white text-black w-[10vw] py-2 rounded-md" onClick={() => startGame("white")}>Play as White</button>
+          <button className="text-[1em] bg-black w-[10vw] py-2 rounded-md" onClick={() => startGame("black")}>Play as Black</button>
         </div>
       )}
     </div>

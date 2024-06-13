@@ -13,7 +13,7 @@ const Navbar = () => {
   ];
 
   return (
-    <div className="w-full py-2 px-7">
+    <div className="w-full h-[10vh] flex items-center px-[5vw] border-b-[1px] border-[#606568]">
       <nav className="flex justify-between">
         {routes.map(({ path, name }, i) => (
           <Link to={path} key={i} className="mx-2">

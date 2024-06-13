@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import { Chess } from "chess.js";
 import ChessBoard from "../components/ChessBoard";
 import StatusBar from "../components/StatusBar";
+import useWindowDimensions from "../hooks/useWindowDimensions";
 
 const PlayComputer = () => {
   const [game] = useState(new Chess());
   const [fen, setFen] = useState("start");
   const [status, setStatus] = useState("");
   const [playerRole, setPlayerRole] = useState(""); // State to store player role
+
+  const { width } = useWindowDimensions();
 
   const updateStatus = () => {
     let status = "";
@@ -75,17 +78,27 @@ const PlayComputer = () => {
         <>
           <ChessBoard
             position={fen}
-            width={450}
+            width={width <= 768 ? width - width * 0.1 : 450}
             onDrop={onDrop}
             orientation={playerRole === "black" ? "black" : "white"}
           />
           <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
         </>
       ) : (
-        <div className="bg-green-500 h-[15vw] w-[20vw] rounded-xl flex items-center justify-center flex-col gap-2">
+        <div className="bg-green-500 px-4 py-8 rounded-xl flex items-center justify-center flex-col gap-2">
           <h2 className="text-[1.2em]">Select Your Role</h2>
-          <button className="text-[1em] bg-white text-black w-[10vw] py-2 rounded-md" onClick={() => startGame("white")}>Play as White</button>
-          <button className="text-[1em] bg-black w-[10vw] py-2 rounded-md" onClick={() => startGame("black")}>Play as Black</button>
+          <button
+            className="text-[1em] bg-white text-black px-2 py-1 rounded-md"
+            onClick={() => startGame("white")}
+          >
+            Play as White
+          </button>
+          <button
+            className="text-[1em] bg-black px-2 py-1 rounded-md"
+            onClick={() => startGame("black")}
+          >
+            Play as Black
+          </button>
         </div>
       )}
     </div>

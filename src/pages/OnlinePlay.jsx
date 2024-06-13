@@ -6,7 +6,7 @@ import PromotionModal from "../components/PromotionModal";
 import { connectSocket, disconnectSocket } from "../services/socket";
 import { getGameInstance, makeMove, getStatus } from "../services/game";
 import "../index.css";
-
+import useWindowDimensions from "../hooks/useWindowDimensions";
 const OnlinePlay = () => {
   const game = getGameInstance();
   const [fen, setFen] = useState("start");
@@ -16,6 +16,9 @@ const OnlinePlay = () => {
   const [message, setMessage] = useState("");
   const [promotionSquare, setPromotionSquare] = useState(null);
   const [promotionMove, setPromotionMove] = useState(null);
+
+  const { width, height } = useWindowDimensions();
+  console.log(width, height);
 
   useEffect(() => {
     const socket = connectSocket();
@@ -130,17 +133,24 @@ const OnlinePlay = () => {
   return (
     <div className="relative w-full flex flex-col items-center justify-center">
       <div className="relative items-center justify-between">
-        <div className="relative">
-          <h1 className="bg-green-500 w-[10vw] my-2 rounded-sm flex items-center justify-center">
-            {currentPlayer === "w" ? "White" : "Black"}
-          </h1>
-          <ChessBoard
-            width={450}
-            position={fen}
-            onDrop={onDrop}
-            orientation={currentPlayer === "w" ? "white" : "black"}
-          />
-          <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
+        <div className="relative flex justify-center items-center md:items-start flex-col md:flex-row">
+          <div className="flex flex-col items-center justify-center">
+            <h1 className="bg-green-500 w-[10vw] my-2 rounded-sm flex items-center justify-center">
+              {currentPlayer === "w" ? "White" : "Black"}
+            </h1>
+            <PromotionModal
+              show={promotionSquare !== null}
+              onSelect={handlePromotionSelect}
+              onClose={handlePromotionClose}
+            />
+            <ChessBoard
+              width={width <= 768 ? width - width * 0.1 : 450}
+              position={fen}
+              onDrop={onDrop}
+              orientation={currentPlayer === "w" ? "white" : "black"}
+            />
+            <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
+          </div>
           <ChatBox
             messages={messages}
             message={message}
@@ -149,12 +159,6 @@ const OnlinePlay = () => {
             currentPlayer={currentPlayer}
           />
         </div>
-
-        <PromotionModal
-          show={promotionSquare !== null}
-          onSelect={handlePromotionSelect}
-          onClose={handlePromotionClose}
-        />
       </div>
     </div>
   );

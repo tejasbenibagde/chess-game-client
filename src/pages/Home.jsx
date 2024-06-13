@@ -17,10 +17,10 @@ const Home = () => {
   ];
 
   return (
-    <div className="w-full h-[90vh] flex items-center justify-center flex-col gap-7">
+    <div className="w-full h-[90vh] flex flex-wrap justify-around pt-[5vh]">
       {gameModes.map(({ name, link }, i) => (
         <Link to={link} key={i}>
-          <span className="bg-green-500 w-[16vw] h-[4vw] flex items-center justify-center rounded-md">
+          <span className="bg-green-500 w-[45vw] h-[50vw] md:h-[20vw] lg:w-[30vw] flex items-center justify-center rounded-md">
             {name}
           </span>
         </Link>

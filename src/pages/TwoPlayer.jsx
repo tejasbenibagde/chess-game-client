@@ -2,12 +2,15 @@ import React, { useState } from "react";
 import { Chess } from "chess.js";
 import ChessBoard from "../components/ChessBoard";
 import StatusBar from "../components/StatusBar";
+import useWindowDimensions from "../hooks/useWindowDimensions";
 
 const TwoPlayer = () => {
   const [game] = useState(new Chess());
   const [fen, setFen] = useState("start");
   const [status, setStatus] = useState("");
   const [orientation, setOrientation] = useState("white");
+
+  const { width } = useWindowDimensions();
 
   const updateStatus = () => {
     let status = "";
@@ -50,8 +53,11 @@ const TwoPlayer = () => {
   };
 
   return (
-    <div className="w-full flex flex-col items-center justify-center">
-      <div className="w-[450px] mb-2">
+    <div className="w-full mt-2 flex flex-col items-center justify-center">
+      <div
+        className="px-[5vw] md:px-0 mb-2"
+        style={{ width: width <= 768 ? width - width * 0.1 : 450 }}
+      >
         <button
           onClick={() => {
             orientation === "white"
@@ -66,7 +72,7 @@ const TwoPlayer = () => {
       <ChessBoard
         position={fen}
         onDrop={onDrop}
-        width={450}
+        width={width <= 768 ? width - width * 0.1 : 450}
         orientation={orientation}
       />
       <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />

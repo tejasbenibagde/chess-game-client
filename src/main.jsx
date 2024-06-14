@@ -6,6 +6,8 @@ import "./index.css";
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
 import { Route, createRoutesFromElements } from "react-router";
 
+import { ThemeProvider } from "./ThemeProvider";
+
 // Routes
 import OnlinePlay from "./pages/OnlinePlay";
 import PlayComputer from "./pages/PlayComputer";
@@ -26,7 +28,9 @@ const router = createBrowserRouter(
 const root = createRoot(document.getElementById("root"));
 
 root.render(
-  <React.StrictMode>
-    <RouterProvider router={router} />
-  </React.StrictMode>
+  // <React.StrictMode>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <RouterProvider router={router} />
+    </ThemeProvider>
+  // </React.StrictMode>
 );

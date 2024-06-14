@@ -2,7 +2,6 @@ import { io } from "socket.io-client";
 
 // https://chess-game-server-1.onrender.com - online server
 
-
 let socket;
 
 export const connectSocket = () => {
@@ -11,7 +10,7 @@ export const connectSocket = () => {
       withCredentials: true,
     });
   }
-  console.log("connected to sockets");
+  // console.log("connected to sockets");
   return socket;
 };
 
@@ -20,7 +19,7 @@ export const disconnectSocket = () => {
     socket.disconnect();
     socket = null;
   }
-  console.log("disconnected from sockets");
+  // console.log("disconnected from sockets");
 };
 
 export default socket;

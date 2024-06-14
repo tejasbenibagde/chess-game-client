@@ -1,54 +1,52 @@
-import React from "react";
-import "../index.css";
-import useWindowDimensions from "../hooks/useWindowDimensions";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 const PromotionModal = ({ show, onSelect, onClose }) => {
-  if (!show) {
-    return null;
-  }
-  const { width } = useWindowDimensions();
+  const pieces = [
+    {
+      label: "Queen",
+      name: "q",
+    },
+    {
+      label: "Rook",
+      name: "r",
+    },
+    {
+      label: "Bishop",
+      name: "b",
+    },
+    {
+      label: "Knight",
+      name: "n",
+    },
+  ];
 
   return (
-    <div
-      className={`absolute md:w-[450px] h-auto py-2 top-16 bg-green-500 z-[100] rounded-md flex items-center justify-center`}
-      style={{ width: width <= 650 ? width - width * 0.1 : 450 }}
-    >
-      <div className="flex flex-col items-center justify-center gap-2">
-        <h2 className="text-[1.2em]">Select Promotion Piece</h2>
-        <div className="flex flex-col gap-2">
-          <button
-            className="bg-white text-black p-2"
-            onClick={() => onSelect("q")}
-          >
-            Queen
-          </button>
-          <button
-            className="bg-white text-black p-2"
-            onClick={() => onSelect("r")}
-          >
-            Rook
-          </button>
-          <button
-            className="bg-white text-black p-2"
-            onClick={() => onSelect("b")}
-          >
-            Bishop
-          </button>
-          <button
-            className="bg-white text-black p-2"
-            onClick={() => onSelect("n")}
-          >
-            Knight
-          </button>
-        </div>
-        <button
-          className="bg-black text-white px-2 py-1 rounded-sm"
-          onClick={onClose}
-        >
-          Cancel
-        </button>
-      </div>
-    </div>
+    <>
+      <AlertDialog open={show}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Serlect Promotion Piece</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            {pieces.map((piece) => (
+              <AlertDialogAction
+                key={piece.name}
+                onClick={() => onSelect(piece.name)}
+              >
+                {piece.label}
+              </AlertDialogAction>
+            ))}
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

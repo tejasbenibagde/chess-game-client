@@ -5,7 +5,7 @@ import useWindowDimensions from "../hooks/useWindowDimensions";
 const ChatBox = ({ messages, message, setMessage, sendMessage }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
-    sendMessage(e); 
+    sendMessage(e);
   };
 
   const { width } = useWindowDimensions();
@@ -14,11 +14,9 @@ const ChatBox = ({ messages, message, setMessage, sendMessage }) => {
     <div
       id="chat"
       style={{
-        width: width <= 768 ? width - width * 0.1 : 450,
-        height: width > 768 && 500,
-        maxHeight: width <= 768 && 500,
+        width: width <= 768 ? width - 16 : 450,
       }}
-      className={`bg-zinc-600 rounded-sm p-2 px-[5vw] mt-2 lg:mt-10 lg:ml-2`}
+      className={`bg-secondary h-[15vh] rounded-sm p-2 px-[5vw] mt-2 lg:mt-10 lg:ml-2`}
     >
       <div
         id="chatMessages"
@@ -39,9 +37,9 @@ const ChatBox = ({ messages, message, setMessage, sendMessage }) => {
           value={message}
           onChange={(e) => setMessage(e.target.value)}
           placeholder="Type a message..."
-          className="bg-slate-500 py-1 px-2 rounded-sm"
+          className="bg-background py-1 px-2 rounded-sm"
         />
-        <button type="submit" className="bg-green-500 py-1 px-2 rounded-sm">
+        <button type="submit" className="bg-primary py-1 px-2 rounded-sm">
           Send
         </button>
       </form>

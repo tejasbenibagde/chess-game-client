@@ -35,17 +35,19 @@ const OnlinePlay = () => {
   const [showResignDialog, setShowResignDialog] = useState(false);
 
   const { width } = useWindowDimensions();
-
+  
   useEffect(() => {
     const socket = connectSocket();
 
     socket.on("userrole", ({ role }) => {
+      console.log("User role set:", role);
       setCurrentPlayer(role);
       setStatus(getStatus());
       setWaitingForOpponent(false);
     });
 
     socket.on("waitingForOpponent", ({ message }) => {
+      console.log("Waiting for opponent:", message);
       setStatus(message);
       setWaitingForOpponent(true);
     });
@@ -75,7 +77,12 @@ const OnlinePlay = () => {
       if (draw) {
         setGameOverMessage("Game over, draw accepted.");
       } else {
-        const result = winner === currentPlayer ? "You won!" : "You lost!";
+        console.log("Winner is", winner);
+        console.log("Current player is", currentPlayer);
+        const result =
+          winner === currentPlayer
+            ? "You won! your opponent resigned"
+            : "You lost! by resignation";
         setGameOverMessage(`Game over, ${result}`);
       }
       setShowGameOverDialog(true);
@@ -100,15 +107,29 @@ const OnlinePlay = () => {
       setShowDrawAcceptedDialog(true);
     });
 
+    socket.on("resign", ({ role }) => {
+      console.log(`Player ${role} resigned`);
+    });
+
     return () => {
       disconnectSocket();
       if (errorTimerRef.current) {
         socket.off("offerDraw");
-        socket.off("drawDecline");
+        socket.off("drawDeclined");
+        socket.off("drawAccepted");
+        socket.off("gameOver");
+        socket.off("chatMessage");
+        socket.off("move");
+        socket.off("waitingForOpponent");
+        socket.off("userrole");
         clearTimeout(errorTimerRef.current);
       }
+      // Reset fen and pgn to starting positions
+      game.reset();
+      setFen(game.fen()); // set to starting fen position
+      setStatus(getStatus()); // optionally reset status if needed
     };
-  }, [game]);
+  }, [game, currentPlayer]);
 
   useEffect(() => {
     if (game.isCheckmate()) {
@@ -241,6 +262,7 @@ const OnlinePlay = () => {
 
   const confirmResign = () => {
     const socket = connectSocket();
+    console.log("Current player resigning:", currentPlayer);
     socket.emit("resign", currentPlayer);
     setShowResignDialog(false);
   };

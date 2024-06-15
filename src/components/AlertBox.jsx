@@ -29,7 +29,7 @@ const AlertBox = ({
           </AlertDialogHeader>
         )}
         {footer && (
-          <AlertDialogFooter>
+          <AlertDialogFooter className='gap-2'>
             {footerAlertAction &&
               footerAlertAction.map(({ onClick, label }) => {
                 return (

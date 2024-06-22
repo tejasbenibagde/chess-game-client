@@ -40,14 +40,14 @@ const OnlinePlay = () => {
     const socket = connectSocket();
 
     socket.on("userrole", ({ role }) => {
-      console.log("User role set:", role);
+      // console.log("User role set:", role);
       setCurrentPlayer(role);
       setStatus(getStatus());
       setWaitingForOpponent(false);
     });
 
     socket.on("waitingForOpponent", ({ message }) => {
-      console.log("Waiting for opponent:", message);
+      // console.log("Waiting for opponent:", message);
       setStatus(message);
       setWaitingForOpponent(true);
     });
@@ -77,8 +77,8 @@ const OnlinePlay = () => {
       if (draw) {
         setGameOverMessage("Game over, draw accepted.");
       } else {
-        console.log("Winner is", winner);
-        console.log("Current player is", currentPlayer);
+        // console.log("Winner is", winner);
+        // console.log("Current player is", currentPlayer);
         const result =
           winner === currentPlayer
             ? "You won! your opponent resigned"
@@ -108,7 +108,7 @@ const OnlinePlay = () => {
     });
 
     socket.on("resign", ({ role }) => {
-      console.log(`Player ${role} resigned`);
+      // console.log(`Player ${role} resigned`);
     });
 
     return () => {
@@ -262,7 +262,7 @@ const OnlinePlay = () => {
 
   const confirmResign = () => {
     const socket = connectSocket();
-    console.log("Current player resigning:", currentPlayer);
+    // console.log("Current player resigning:", currentPlayer);
     socket.emit("resign", currentPlayer);
     setShowResignDialog(false);
   };

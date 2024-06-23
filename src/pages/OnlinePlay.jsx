@@ -35,10 +35,11 @@ const OnlinePlay = () => {
   const [showResignDialog, setShowResignDialog] = useState(false);
 
   const { width } = useWindowDimensions();
-  
-  useEffect(() => {
-    const socket = connectSocket();
 
+  useEffect(() => {
+
+    const socket = connectSocket();
+    
     socket.on("userrole", ({ role }) => {
       // console.log("User role set:", role);
       setCurrentPlayer(role);

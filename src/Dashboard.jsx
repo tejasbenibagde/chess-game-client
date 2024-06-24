@@ -1,6 +1,7 @@
 import React from "react";
 import AppRoutes from "./AppRoutes"; // these provides the main game feature we'll be handling it very soon
 import Navbar from "./components/navigation/Navbar";
+import Home from "./pages/Home";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -16,7 +17,9 @@ const Dashboard = () => {
           <Navbar />
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel>Two</ResizablePanel>
+        <ResizablePanel>
+          <Home />
+        </ResizablePanel>
       </ResizablePanelGroup>
     </div>
   );

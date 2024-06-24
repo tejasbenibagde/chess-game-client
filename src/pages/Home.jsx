@@ -1,34 +1,73 @@
-import { Link } from "react-router-dom";
-import { FaNetworkWired } from "react-icons/fa";
-import { BsRobot } from "react-icons/bs";
-import { FaPeopleRobbery } from "react-icons/fa6";
+import ChessBoard from "@/components/ChessBoard";
+import React from "react";
+import useWindowDimensions from "../hooks/useWindowDimensions";
+import { RiUserLocationLine, RiRobot3Fill } from "react-icons/ri";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+
 const Home = () => {
-  const gameModes = [
-    {
-      name: "Online Play",
-      link: "/online-play",
-      icon: <FaNetworkWired size={30} />,
-    },
-    {
-      name: "Play With computer",
-      link: "/play-computer",
-      icon: <BsRobot size={30} />,
-    },
-    {
-      name: "Play With Friend",
-      link: "/two-player",
-      icon: <FaPeopleRobbery size={30} />,
-    },
-  ];
+  const { height } = useWindowDimensions();
+  const width = height / 1.618;
 
   return (
-    <div className="h-[90vh] flex flex-col px-3 py-4 gap-4">
-      {gameModes.map(({ name, link, icon }, i) => (
-        <Link to={link} key={i} className="h-[10vh] bg-primary rounded-md px-3 flex items-center gap-3">
-          <div className="bg-secondary flex items-center justify-center h-[8vh] w-[8vh] rounded-md">{icon}</div>
-          <span>{name}</span>
-        </Link>
-      ))}
+    <div className="p-2 w-full flex flex-col">
+      <div className="mb-2">
+        <h1 className={cn(buttonVariants({ variant: "tertiary" }))}>
+          The oldest known chess game recorded in history is from the 10th
+          century, played between a historian from Baghdad and his student.
+        </h1>
+      </div>
+      <Separator />
+
+      <div className="relative mt-2 px-2 gap-4 flex">
+        <div
+          style={{ width: `${width}px`, height: `${width}px` }}
+          className="relative overflow-hidden rounded-md"
+        >
+          <ChessBoard width={width} position="start" />
+        </div>
+        <div
+          style={{ width: `${width}px` }}
+          className="relative flex flex-col gap-4 p-4 items-center justify-center"
+        >
+          <h1 className="text-5xl leading-tight font-extrabold text-center">
+            Play Chess <br /> Online <br /> on the #1 Site!
+          </h1>
+          <div className="flex justify-between w-full">
+            <h1>
+              <span className="font-extrabold">13,873,735</span> Games Today
+            </h1>
+            <h1>
+              <span className="font-extrabold">108,559</span> Playing Now
+            </h1>
+          </div>
+          <div className="w-full flex flex-col gap-4">
+            <Button className="flex relative gap-4 p-4 h-auto w-full justify-start pl-[76px]">
+              <div className="absolute left-4">
+                <RiUserLocationLine size={48} />
+              </div>
+              <div className="flex flex-col gap-2 items-start justify-start">
+                <h1 className="font-bold text-4xl">Play Online</h1>
+                <h1 className="font-semibold">
+                  Play with someone at your level
+                </h1>
+              </div>
+            </Button>
+            <Button className="flex relative gap-4 p-4 h-auto w-full justify-start pl-[76px]">
+              <div className="absolute left-4">
+                <RiRobot3Fill size={48} />
+              </div>
+              <div className="flex flex-col gap-2 items-start justify-start">
+                <h1 className="font-bold text-4xl">Play Computer</h1>
+                <h1 className="font-semibold">
+                  Play vs Customizable Training Bots
+                </h1>
+              </div>
+            </Button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

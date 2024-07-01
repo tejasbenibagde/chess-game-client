@@ -8,10 +8,31 @@ import { getGameInstance, makeMove, getStatus } from "../services/game";
 import "../index.css";
 import useWindowDimensions from "../hooks/useWindowDimensions";
 import { CiSquareAlert as AlertIcon } from "react-icons/ci";
-import { Badge } from "@/components/ui/badge";
-import { Alert } from "@/components/ui/alert";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import AlertBox from "@/components/AlertBox";
+import { Separator } from "@/components/ui/separator";
+import { cn } from "@/lib/utils";
+import {
+  ResizableHandle,
+  ResizablePanel,
+  ResizablePanelGroup,
+} from "@/components/ui/resizable";
+
+import { useSelector, useDispatch } from "react-redux";
+import { fetchUser } from "@/actions/userActions";
+import { createGame } from "@/actions/gameActions";
+
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
+
 
 const OnlinePlay = () => {
   const game = getGameInstance();
@@ -34,21 +55,37 @@ const OnlinePlay = () => {
   const [drawAcceptedMessage, setDrawAcceptedMessage] = useState("");
   const [showResignDialog, setShowResignDialog] = useState(false);
 
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
+
+  const dispatch = useDispatch();
+  const { userDetails, loading, error, token } = useSelector(
+    (state) => state.user
+  );
 
   useEffect(() => {
+    if (!userDetails && token) {
+      dispatch(fetchUser(token));
+    }
+  }, [userDetails, token, dispatch]);
+
+  useEffect(() => {
+    if (loading) return;
+    if (error) return;
 
     const socket = connectSocket();
-    
+
+    // Emit user ID when userDetails are available
+    if (userDetails) {
+      socket.emit("userConnected", { userId: userDetails.id });
+    }
+
     socket.on("userrole", ({ role }) => {
-      // console.log("User role set:", role);
       setCurrentPlayer(role);
       setStatus(getStatus());
       setWaitingForOpponent(false);
     });
 
     socket.on("waitingForOpponent", ({ message }) => {
-      // console.log("Waiting for opponent:", message);
       setStatus(message);
       setWaitingForOpponent(true);
     });
@@ -74,25 +111,40 @@ const OnlinePlay = () => {
       }, 3000);
     });
 
-    socket.on("gameOver", ({ winner, draw }) => {
+    socket.on("gameOver", (data) => {
+      const { winner, draw, white_player_id, black_player_id } = data;
+      console.log(data);
+      console.log(currentPlayer);
+      let result;
+      const pgn = game.pgn();
+      const fen = game.fen();
+      const white_rating = 1600;
+      const black_rating = 1600;
+      const rating_shift = 10;
       if (draw) {
         setGameOverMessage("Game over, draw accepted.");
       } else {
-        // console.log("Winner is", winner);
-        // console.log("Current player is", currentPlayer);
-        const result =
+        result =
           winner === currentPlayer
-            ? "You won! your opponent resigned"
-            : "You lost! by resignation";
-        setGameOverMessage(`Game over, ${result}`);
+            ? "You won! Your opponent Resigned"
+            : "You lost! You Resigned";
+        setGameOverMessage(result);
       }
+      dispatch(createGame({
+        white_player_id,
+        black_player_id,
+        result: draw ? "n" : winner === "w" ? "w" : "b",
+        pgn,
+        fen,
+        white_rating,
+        black_rating,
+        rating_shift
+      }))
       setShowGameOverDialog(true);
     });
 
     socket.on("offerDraw", ({ opponentRole }) => {
-      const message = `Your opponent (${
-        opponentRole === "w" ? "White" : "Black"
-      }) offered a draw. Accept or Decline?`;
+      const message = `Your opponent (${opponentRole === "w" ? "White" : "Black"}) offered a draw. Accept or Decline?`;
       setDrawOfferMessage(message);
       setDrawOfferFromOpponent(opponentRole);
       setShowDrawOfferDialog(true);
@@ -109,7 +161,7 @@ const OnlinePlay = () => {
     });
 
     socket.on("resign", ({ role }) => {
-      // console.log(`Player ${role} resigned`);
+      // Handle resignation
     });
 
     return () => {
@@ -125,12 +177,11 @@ const OnlinePlay = () => {
         socket.off("userrole");
         clearTimeout(errorTimerRef.current);
       }
-      // Reset fen and pgn to starting positions
       game.reset();
-      setFen(game.fen()); // set to starting fen position
-      setStatus(getStatus()); // optionally reset status if needed
+      setFen(game.fen());
+      setStatus(getStatus());
     };
-  }, [game, currentPlayer]);
+  }, [userDetails, loading, error, game, currentPlayer]);
 
   useEffect(() => {
     if (game.isCheckmate()) {
@@ -168,9 +219,8 @@ const OnlinePlay = () => {
   const sendMessage = (e) => {
     e.preventDefault();
     if (message) {
-      const formattedMessage = `${message} - ${
-        currentPlayer === "w" ? "White" : "Black"
-      }`;
+      const formattedMessage = `${message} - ${currentPlayer === "w" ? "White" : "Black"
+        }`;
       const socket = connectSocket();
 
       // Add the message to the local state immediately
@@ -275,31 +325,32 @@ const OnlinePlay = () => {
   // console.log(showDrawAcceptedDialog);
 
   return (
-    <div className="relative w-full flex flex-col items-center h-[95vh] p-2">
-      {errorMessage && (
-        <Alert status="error" className="mb-4 flex items-center gap-4">
-          <div>
+    <div className="relative w-full flex flex-col h-[95vh] p-2">
+      <div>
+        {errorMessage ? (
+          <h1 className={`${cn(buttonVariants({ variant: "tertiary" }))} mb-2`}>
             <AlertIcon size={30} color="primary" />
-          </div>
-          {errorMessage}
-        </Alert>
-      )}
-      <div className="relative items-center justify-between flex flex-col md:flex-row w-full">
-        <div className="flex flex-col items-center justify-center w-full md:w-2/3">
-          <div className=" w-full flex justify-end py-2">
-            <Badge>
-              You are playing as {currentPlayer === "w" ? "white" : "black"}
-            </Badge>
-          </div>
+            {errorMessage}
+          </h1>
+        ) : (
+          <h1 className={`${cn(buttonVariants({ variant: "tertiary" }))} mb-2`}>
+            You are playing as {currentPlayer === "w" ? "White" : "Black"}
+          </h1>
+        )}
+      </div>
+      <Separator />
+
+      <div className="relative mt-2 flex flex-col-reverse md:flex-row gap-2">
+        <div className="flex flex-col w-full md:w-2/3">
           <AlertBox
-            header={true}
+            header
             open={showGameOverDialog}
             onOpenChange={setShowGameOverDialog}
             title="Game Over"
             description={gameOverMessage}
-            footer={true}
+            footer
             footerAlertAction={[
-              { onClick: () => setShowGameOverDialog(false), label: "close" },
+              { onClick: () => setShowGameOverDialog(false), label: "Close" },
             ]}
           />
 
@@ -308,78 +359,131 @@ const OnlinePlay = () => {
             onSelect={handlePromotionSelect}
             onClose={handlePromotionClose}
           />
-          <ChessBoard
-            width={width <= 640 ? width - 16 : 450}
-            position={fen}
-            onDrop={onDrop}
-            orientation={currentPlayer === "w" ? "white" : "black"}
-          />
-          <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
+          <div
+            className="relative overflow-hidden rounded-md"
+            style={{
+              width: width <= 640 ? width - 16 : height - 120,
+              height: width <= 640 ? width - 16 : height - 120,
+            }}
+          >
+            <ChessBoard
+              width={width <= 640 ? width - 16 : height - 120}
+              position={fen}
+              onDrop={onDrop}
+              orientation={currentPlayer === "w" ? "white" : "black"}
+            />
+          </div>
+          <div className="mt-4 flex justify-between">
+            {width <= 786 &&
+              <Drawer>
+                <DrawerTrigger className={cn(buttonVariants({ variant: "secondary" }))}>Chat</DrawerTrigger>
+                <DrawerContent className="px-2">
+                  <DrawerTitle className="px-2">Chat</DrawerTitle>
+                  <DrawerHeader className="h-[50vh] relative flex items-center justify-center">
+                    <ChatBox
+                      messages={messages}
+                      message={message}
+                      setMessage={setMessage}
+                      sendMessage={sendMessage}
+                      currentPlayer={currentPlayer}
+                      className="w-full md:w-1/3 mt-4 md:mt-0"
+                    />
+                  </DrawerHeader>
+                </DrawerContent>
+              </Drawer>
+            }
+            <div className="flex space-x-4">
+              <Button onClick={handleResign} variant="destructive">
+                Resign
+              </Button>
+              <Button onClick={handleOfferDraw} variant="outline">
+                Offer Draw
+              </Button>
+
+            </div>
+          </div>
         </div>
-        <ChatBox
-          messages={messages}
-          message={message}
-          setMessage={setMessage}
-          sendMessage={sendMessage}
-          currentPlayer={currentPlayer}
-          className="w-full md:w-1/3 mt-4 md:mt-0"
-        />
-        <div className="mt-4 flex space-x-4">
-          <Button onClick={handleResign} variant="destructive">
-            Resign
-          </Button>
-          <Button onClick={handleOfferDraw} variant="outline">
-            Offer Draw
-          </Button>
-        </div>
+        {
+          width >= 768 ?
+            (
+              <div className="w-full h-[80vh] flex flex-col">
+                <ResizablePanelGroup direction="vertical">
+                  <ResizablePanel
+                    className="relative p-2 py-4 overflow-y-scroll custom-scrollbar"
+                    minSize={35}
+                    maxSize={55}
+                  >
+                    <div className="h-full">
+                      <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
+                    </div>
+                  </ResizablePanel>
+                  <ResizableHandle withHandle />
+                  <ResizablePanel className="relative ">
+                    <ChatBox
+                      messages={messages}
+                      message={message}
+                      setMessage={setMessage}
+                      sendMessage={sendMessage}
+                      currentPlayer={currentPlayer}
+                      className="w-full md:w-1/3 mt-4 md:mt-0"
+                    />
+                  </ResizablePanel>
+                </ResizablePanelGroup>
+              </div>
+            ) : (
+              <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
+            )
+        }
+
         {waitingForOpponent && (
           <AlertBox
-            header={true}
+            header
             open={waitingForOpponent}
-            title="Waiting for opponent"
+            title="Waiting for Opponent"
             description="Searching for an available opponent. This might take a few seconds."
           />
         )}
+
         {showDrawAcceptedDialog && (
           <AlertBox
-            header={true}
+            header
             open={showDrawAcceptedDialog}
             onOpenChange={setShowDrawAcceptedDialog}
             title="Draw Accepted"
             description={drawAcceptedMessage}
-            footer={true}
+            footer
             footerAlertAction={[
               {
-                onClick: setShowDrawAcceptedDialog(false),
+                onClick: () => setShowDrawAcceptedDialog(false),
                 label: "Close",
               },
             ]}
           />
         )}
+
         {showDrawOfferDialog && drawOfferFromOpponent === currentPlayer && (
-          <>
-            <AlertBox
-              header={true}
-              open={showDrawOfferDialog}
-              onOpenChange={setShowDrawOfferDialog}
-              title="Draw Offer"
-              description={drawOfferMessage}
-              footer={true}
-              footerAlertAction={[
-                { onClick: handleDrawAccept, label: "Accept" },
-                { onClick: handleDrawDecline, label: "Decline" },
-              ]}
-            />
-          </>
+          <AlertBox
+            header
+            open={showDrawOfferDialog}
+            onOpenChange={setShowDrawOfferDialog}
+            title="Draw Offer"
+            description={drawOfferMessage}
+            footer
+            footerAlertAction={[
+              { onClick: handleDrawAccept, label: "Accept" },
+              { onClick: handleDrawDecline, label: "Decline" },
+            ]}
+          />
         )}
+
         {showResignDialog && (
           <AlertBox
-            header={true}
+            header
             open={showResignDialog}
             onOpenChange={setShowResignDialog}
             title="Confirm Resignation"
             description="Are you sure you want to resign?"
-            footer={true}
+            footer
             footerAlertAction={[
               { onClick: confirmResign, label: "Yes, Resign" },
               { onClick: cancelResign, label: "No, Cancel" },

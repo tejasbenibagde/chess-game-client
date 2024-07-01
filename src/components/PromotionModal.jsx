@@ -7,7 +7,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-const PromotionModal = ({ show, onSelect, onClose }) => {
+const PromotionModal = ({ show, onSelect }) => {
   const pieces = [
     {
       label: "Queen",

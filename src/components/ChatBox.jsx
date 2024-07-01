@@ -13,16 +13,9 @@ const ChatBox = ({ messages, message, setMessage, sendMessage }) => {
   return (
     <div
       id="chat"
-      style={{
-        width: width <= 768 ? width - 16 : 450,
-      }}
-      className={`bg-secondary h-[15vh] rounded-sm p-2 px-[5vw] mt-2 lg:mt-10 lg:ml-2`}
+      className={`absolute bg-secondary w-[98%] h-[85%] rounded-sm p-2 px-[5vw] mt-2 lg:mt-10 lg:ml-2`}
     >
-      <div
-        id="chatMessages"
-        className="overflow-scroll md:overflow-auto"
-        style={{ height: width <= 768 ? "10vh" : "auto" }}
-      >
+      <div id="chatMessages" className="overflow-scroll md:overflow-auto">
         {messages.map((msg, index) => (
           <div key={index}>{msg}</div>
         ))}

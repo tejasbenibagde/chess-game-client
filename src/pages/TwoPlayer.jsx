@@ -22,7 +22,7 @@ const TwoPlayer = () => {
   const [promotionMove, setPromotionMove] = useState(null); // State for promotion move
   const errorTimerRef = useRef(null);
 
-  const { width } = useWindowDimensions();
+  const { width, height } = useWindowDimensions();
 
   const updateStatus = () => {
     let status = "";
@@ -113,53 +113,68 @@ const TwoPlayer = () => {
   };
 
   return (
-    <div className="w-full mt-2 flex flex-col items-center justify-center">
+
+    <div className="w-full px-4 py-2 gap-2 flex flex-col">
       {errorMessage && (
-        <Alert status="error" className="mb-4 flex items-center gap-4">
-          <div>
-            <AlertIcon size={30} color="primary" />
+        <div>
+          <Alert status="error" className="mb-4 flex items-center gap-4">
+            <div>
+              <AlertIcon size={30} color="primary" />
+            </div>
+            {errorMessage}
+          </Alert>
+        </div>
+      )}
+      <div className="w-full flex gap-2 flex-col-reverse items-center md:items-start md:flex-row">
+        <div className="">
+          <ChessBoard
+            position={fen}
+            onDrop={onDrop}
+            width={width <= 640 ? width - 16 : height - 120}
+            orientation={orientation}
+          />
+          <div className="w-full px-2 py-2 flex justify-end">
+            <Button
+              onClick={() => {
+                orientation === "white"
+                  ? setOrientation("black")
+                  : setOrientation("white");
+              }}
+            >
+              Flip Board
+            </Button>
           </div>
-          {errorMessage}
-        </Alert>
-      )}
-      <div className="w-full px-2 py-2 flex justify-end">
-        <Button
-          onClick={() => {
-            orientation === "white"
-              ? setOrientation("black")
-              : setOrientation("white");
-          }}
-        >
-          Flip Board
-        </Button>
+        </div>
+        {
+          width >= 768 ? (
+            <div className="w-full h-[80vh] flex flex-col">
+              <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
+            </div>
+          ) : (
+            <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
+          )
+        }
+        {showGameOverDialog && (
+          <AlertBox
+            header={true}
+            open={showGameOverDialog}
+            onOpenChange={setShowGameOverDialog}
+            title="Game Over"
+            description={gameOverMessage}
+            footer={true}
+            footerAlertAction={[
+              { onClick: () => setShowGameOverDialog(false), label: "Close" },
+            ]}
+          />
+        )}
+        {promotionSquare !== null && (
+          <PromotionModal
+            show={promotionSquare !== null}
+            onSelect={handlePromotionSelect}
+            onClose={handlePromotionClose}
+          />
+        )}
       </div>
-      <ChessBoard
-        position={fen}
-        onDrop={onDrop}
-        width={width <= 768 ? width - 16 : 450}
-        orientation={orientation}
-      />
-      <StatusBar status={status} fen={game.fen()} pgn={game.pgn()} />
-      {showGameOverDialog && (
-        <AlertBox
-          header={true}
-          open={showGameOverDialog}
-          onOpenChange={setShowGameOverDialog}
-          title="Game Over"
-          description={gameOverMessage}
-          footer={true}
-          footerAlertAction={[
-            { onClick: () => setShowGameOverDialog(false), label: "Close" },
-          ]}
-        />
-      )}
-      {promotionSquare !== null && (
-        <PromotionModal
-          show={promotionSquare !== null}
-          onSelect={handlePromotionSelect}
-          onClose={handlePromotionClose}
-        />
-      )}
     </div>
   );
 };
